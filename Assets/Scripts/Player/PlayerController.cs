@@ -37,6 +37,9 @@ namespace ArenaBreak.Player
         private float _pitch;
         private float _verticalVelocity;
 
+        // 조준(ADS) 등 외부 상태가 인스펙터 감도를 덮어쓰지 않고 배율로만 조정하도록 분리
+        public float SensitivityMultiplier { get; set; } = 1f;
+
         private void Awake()
         {
             _characterController = GetComponent<CharacterController>();
@@ -81,7 +84,7 @@ namespace ArenaBreak.Player
         {
             // 마우스 delta는 이미 프레임 단위 값이므로 deltaTime을 곱하지 않는다
             Vector2 lookDelta = Vector2.ClampMagnitude(_lookAction.ReadValue<Vector2>(), _maxLookDeltaPerFrame);
-            lookDelta *= _mouseSensitivity;
+            lookDelta *= _mouseSensitivity * SensitivityMultiplier;
 
             transform.Rotate(Vector3.up, lookDelta.x, Space.Self);
 

@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -33,6 +34,10 @@ namespace ArenaBreak.Player
         private InputAction _reloadAction;
         private Material _hitMarkerMaterial;
         private GameObject _hitMarkerTemplate;
+
+        public event Action ReloadStarted;
+
+        public bool IsReloading => _isReloading;
 
         private int _currentAmmo;
         private float _nextFireTime;
@@ -114,6 +119,7 @@ namespace ArenaBreak.Player
             _isReloading = true;
             _reloadEndTime = Time.time + _reloadDuration;
             Debug.Log($"[Weapon] 재장전 시작 — 남은 탄약 {_currentAmmo}/{_magazineSize}");
+            ReloadStarted?.Invoke();
         }
 
         private void FinishReload()
