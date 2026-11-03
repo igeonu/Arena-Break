@@ -231,6 +231,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1391726872}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!134 &91094499
+PhysicsMaterial:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  serializedVersion: 2
+  m_DynamicFriction: 0.6
+  m_StaticFriction: 0.6
+  m_Bounciness: 0
+  m_FrictionCombine: 0
+  m_BounceCombine: 0
 --- !u!1 &124109409
 GameObject:
   m_ObjectHideFlags: 0
@@ -420,6 +433,8 @@ GameObject:
   - component: {fileID: 217239334}
   - component: {fileID: 217239333}
   - component: {fileID: 217239332}
+  - component: {fileID: 217239336}
+  - component: {fileID: 217239335}
   m_Layer: 0
   m_Name: Target_3
   m_TagString: Untagged
@@ -498,7 +513,7 @@ BoxCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 217239330}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 91094499}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -520,6 +535,32 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 217239330}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &217239335
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 217239330}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2778349ee49b6da47bc626e80b13ac90, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ArenaBreak.Core.DestroyOnDeath
+--- !u!114 &217239336
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 217239330}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 18ab5b405cd419f419ac9d51814f2f95, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ArenaBreak.Core.Health
+  _maxHealth: 100
+  _currentHealth: 0
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0
@@ -1303,6 +1344,8 @@ GameObject:
   - component: {fileID: 1135468943}
   - component: {fileID: 1135468942}
   - component: {fileID: 1135468941}
+  - component: {fileID: 1135468945}
+  - component: {fileID: 1135468944}
   m_Layer: 0
   m_Name: Target_2
   m_TagString: Untagged
@@ -1403,6 +1446,32 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1135468939}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1135468944
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1135468939}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2778349ee49b6da47bc626e80b13ac90, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ArenaBreak.Core.DestroyOnDeath
+--- !u!114 &1135468945
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1135468939}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 18ab5b405cd419f419ac9d51814f2f95, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ArenaBreak.Core.Health
+  _maxHealth: 100
+  _currentHealth: 0
 --- !u!1 &1318994129
 GameObject:
   m_ObjectHideFlags: 0
@@ -1791,6 +1860,7 @@ MonoBehaviour:
   _camera: {fileID: 330585545}
   _fireInterval: 0.15
   _range: 50
+  _damage: 25
   _hitMask:
     serializedVersion: 2
     m_Bits: 4294967295
@@ -1953,6 +2023,8 @@ GameObject:
   - component: {fileID: 1876861077}
   - component: {fileID: 1876861076}
   - component: {fileID: 1876861075}
+  - component: {fileID: 1876861079}
+  - component: {fileID: 1876861078}
   m_Layer: 0
   m_Name: Target_1
   m_TagString: Untagged
@@ -2053,6 +2125,32 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1876861073}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1876861078
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1876861073}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2778349ee49b6da47bc626e80b13ac90, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ArenaBreak.Core.DestroyOnDeath
+--- !u!114 &1876861079
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1876861073}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 18ab5b405cd419f419ac9d51814f2f95, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ArenaBreak.Core.Health
+  _maxHealth: 100
+  _currentHealth: 0
 --- !u!1 &1993861838
 GameObject:
   m_ObjectHideFlags: 0

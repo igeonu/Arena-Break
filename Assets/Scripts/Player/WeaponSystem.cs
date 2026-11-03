@@ -1,4 +1,5 @@
 using System;
+using ArenaBreak.Core;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -16,6 +17,7 @@ namespace ArenaBreak.Player
         [Header("Fire")]
         [SerializeField] private float _fireInterval = 0.15f;
         [SerializeField] private float _range = 50f;
+        [SerializeField] private int _damage = 25;
         [SerializeField] private LayerMask _hitMask = ~0;
 
         [Header("Ammo")]
@@ -108,6 +110,13 @@ namespace ArenaBreak.Player
             if (Physics.Raycast(ray, out RaycastHit hit, _range, _hitMask, QueryTriggerInteraction.Ignore))
             {
                 SpawnHitMarker(hit.point);
+
+                // 규약(Update 내 GetComponent 금지)의 합의된 예외: 매 프레임이 아니라 명중 시에만 호출되고,
+                // 대상이 런타임에 스폰·파괴되므로 Awake 캐싱이 불가능하다
+                if (hit.collider.TryGetComponent(out IDamageable damageable))
+                {
+                    damageable.TakeDamage(_damage);
+                }
             }
 
             // 3장에서 HUD 이벤트로 옮길 임시 출력
