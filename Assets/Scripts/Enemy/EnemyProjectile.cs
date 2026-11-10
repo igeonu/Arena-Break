@@ -1,3 +1,4 @@
+using System;
 using ArenaBreak.Core;
 using UnityEngine;
 
@@ -23,6 +24,10 @@ namespace ArenaBreak.Enemy
         private int _damage;
         private float _despawnTime;
 
+        // (명중 지점, 표면 법선). 탄은 런타임에 생성되는 프리팹이라 씬의 이펙트가 개별 탄을 참조할 수 없으므로
+        // 모든 탄이 공유하는 정적 이벤트로 알린다. 구독한 쪽은 반드시 OnDisable에서 해제해야 한다
+        public static event Action<Vector3, Vector3> AnyHit;
+
         // 발사 순간의 방향(transform.forward)으로만 날아간다. 유도하지 않는다
         public void Launch(int damage)
         {
@@ -43,7 +48,7 @@ namespace ArenaBreak.Enemy
             float step = _speed * Time.deltaTime;
             Vector3 direction = transform.forward;
             int hitCount = Physics.SphereCastNonAlloc(transform.position, _hitRadius, direction, _hitBuffer, step, _hitMask, QueryTriggerInteraction.Ignore);
-            if (TryFindNearestNonAlly(hitCount, out Collider target))
+            if (TryFindNearestNonAlly(hitCount, out RaycastHit target))
             {
                 HandleHit(target);
                 return;
@@ -53,9 +58,10 @@ namespace ArenaBreak.Enemy
         }
 
         // 적끼리는 같은 팀이므로 탄이 맞지도 막히지도 않고 통과한다
-        private bool TryFindNearestNonAlly(int hitCount, out Collider target)
+        private bool TryFindNearestNonAlly(int hitCount, out RaycastHit target)
         {
-            target = null;
+            target = default;
+            bool found = false;
             float nearestDistance = float.MaxValue;
 
             for (int i = 0; i < hitCount; i++)
@@ -64,11 +70,12 @@ namespace ArenaBreak.Enemy
                 if (hit.distance < nearestDistance && !IsAlly(hit.collider))
                 {
                     nearestDistance = hit.distance;
-                    target = hit.collider;
+                    target = hit;
+                    found = true;
                 }
             }
 
-            return target != null;
+            return found;
         }
 
         // WeaponSystem과 같은 합의된 예외: 매 프레임이 아니라 무언가에 닿았을 때만 GetComponent 계열을 호출한다.
@@ -89,8 +96,14 @@ namespace ArenaBreak.Enemy
             return false;
         }
 
-        private void HandleHit(Collider hitCollider)
+        private void HandleHit(RaycastHit hit)
         {
+            Collider hitCollider = hit.collider;
+            // 시작 시점에 이미 겹쳐 있던 대상은 point가 (0,0,0)으로 나오므로 탄의 현재 위치를 쓴다
+            Vector3 hitPoint = hit.distance > 0f ? hit.point : transform.position;
+            Vector3 hitNormal = hit.distance > 0f ? hit.normal : -transform.forward;
+            AnyHit?.Invoke(hitPoint, hitNormal);
+
             if (hitCollider.TryGetComponent(out IDamageable damageable))
             {
                 damageable.TakeDamage(_damage);

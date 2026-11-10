@@ -40,6 +40,10 @@ namespace ArenaBreak.Player
         public event Action ReloadStarted;
         // (현재 탄약, 탄창 크기). HUD가 폴링하지 않도록 탄약이 바뀌는 순간에만 알린다
         public event Action<int, int> AmmoChanged;
+        // (명중 지점, 표면 법선). 이펙트 쪽이 무기 구현을 몰라도 되도록 결과만 알린다
+        public event Action<Vector3, Vector3> HitSurface;
+        // 명중 여부와 관계없이 한 발이 나갈 때마다 알린다. 반동처럼 '쏘는 행위' 자체에 반응하는 쪽이 쓴다
+        public event Action Fired;
 
         public bool IsReloading => _isReloading;
         // 구독자가 첫 이벤트 전에 초기 표시를 할 수 있도록 읽기 전용으로 연다
@@ -111,11 +115,13 @@ namespace ArenaBreak.Player
             _nextFireTime = Time.time + _fireInterval;
             _currentAmmo--;
             AmmoChanged?.Invoke(_currentAmmo, _magazineSize);
+            Fired?.Invoke();
 
             Ray ray = _camera.ViewportPointToRay(ViewportCenter);
             if (Physics.Raycast(ray, out RaycastHit hit, _range, _hitMask, QueryTriggerInteraction.Ignore))
             {
                 SpawnHitMarker(hit.point);
+                HitSurface?.Invoke(hit.point, hit.normal);
 
                 // 규약(Update 내 GetComponent 금지)의 합의된 예외: 매 프레임이 아니라 명중 시에만 호출되고,
                 // 대상이 런타임에 스폰·파괴되므로 Awake 캐싱이 불가능하다

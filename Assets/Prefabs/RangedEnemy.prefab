@@ -205,6 +205,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3148964099184246662}
+  - component: {fileID: 5534630317706964626}
   m_Layer: 0
   m_Name: Weapon
   m_TagString: Untagged
@@ -230,6 +231,22 @@ Transform:
   - {fileID: 8817865579073942119}
   m_Father: {fileID: 7686252096445762423}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5534630317706964626
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2387281929598792640}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea0184c40b5b97446a8d563e4cbccfda, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ArenaBreak.Core.WeaponKick
+  _kickPitch: 20
+  _kickBack: 0.08
+  _snapSpeed: 40
+  _recoverySpeed: 10
 --- !u!1 &2701396150201434592
 GameObject:
   m_ObjectHideFlags: 0
@@ -335,6 +352,7 @@ GameObject:
   - component: {fileID: 5553681724676245508}
   - component: {fileID: 3862659882912322210}
   - component: {fileID: 1859508258750648317}
+  - component: {fileID: 6349014120312003555}
   m_Layer: 0
   m_Name: RangedEnemy
   m_TagString: Untagged
@@ -500,6 +518,23 @@ MonoBehaviour:
   _projectilePrefab: {fileID: 1482989038479062636, guid: 7ddbab731e6ef184a89e721e991ba171, type: 3}
   _fireInterval: 2
   _projectileDamage: 2
+  _aimSpread: 3
+  _weaponKick: {fileID: 5534630317706964626}
+--- !u!114 &6349014120312003555
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2791330723375080422}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc449606686fa194495d1bcfbf7dc6b0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ArenaBreak.Enemy.HitFlash
+  _bodyRenderer: {fileID: 5931137636568541825}
+  _flashColor: {r: 1, g: 1, b: 1, a: 1}
+  _flashDuration: 0.05
 --- !u!1 &4171431969518299352
 GameObject:
   m_ObjectHideFlags: 0

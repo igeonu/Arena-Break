@@ -31,6 +31,12 @@ namespace ArenaBreak.Enemy
         [SerializeField] private float _fireInterval = 2f;
         [SerializeField] private int _projectileDamage = 2;
 
+        [Header("Recoil")]
+        // 발사 방향이 조준선에서 상하좌우로 최대 이만큼(도) 무작위로 틀어진다
+        [SerializeField, Min(0f)] private float _aimSpread = 3f;
+        // 총 모델 연출. 없으면 조준 흔들림만 한다
+        [SerializeField] private ArenaBreak.Core.WeaponKick _weaponKick;
+
         private State _state;
         private float _nextFireTime;
 
@@ -201,8 +207,16 @@ namespace ArenaBreak.Enemy
 
             // 발사 순간의 플레이어 위치를 겨냥하고 이후엔 방향을 바꾸지 않는다(유도 없음)
             Vector3 direction = (Player.position - _muzzle.position).normalized;
-            EnemyProjectile projectile = Instantiate(_projectilePrefab, _muzzle.position, Quaternion.LookRotation(direction));
+            Quaternion aim = Quaternion.LookRotation(direction);
+            // 반동으로 조준이 흔들린 것처럼 조준선 기준으로 살짝 비튼다
+            Quaternion spread = Quaternion.Euler(Random.Range(-_aimSpread, _aimSpread), Random.Range(-_aimSpread, _aimSpread), 0f);
+            EnemyProjectile projectile = Instantiate(_projectilePrefab, _muzzle.position, aim * spread);
             projectile.Launch(_projectileDamage);
+
+            if (_weaponKick != null)
+            {
+                _weaponKick.Kick();
+            }
 
             Debug.Log($"[RangedEnemyAI] {name} 발사 — 데미지 {_projectileDamage} (대상 IDamageable: {PlayerDamageable != null})");
         }
