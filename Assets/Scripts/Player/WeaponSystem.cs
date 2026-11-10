@@ -38,8 +38,13 @@ namespace ArenaBreak.Player
         private GameObject _hitMarkerTemplate;
 
         public event Action ReloadStarted;
+        // (현재 탄약, 탄창 크기). HUD가 폴링하지 않도록 탄약이 바뀌는 순간에만 알린다
+        public event Action<int, int> AmmoChanged;
 
         public bool IsReloading => _isReloading;
+        // 구독자가 첫 이벤트 전에 초기 표시를 할 수 있도록 읽기 전용으로 연다
+        public int CurrentAmmo => _currentAmmo;
+        public int MagazineSize => _magazineSize;
 
         private int _currentAmmo;
         private float _nextFireTime;
@@ -105,6 +110,7 @@ namespace ArenaBreak.Player
         {
             _nextFireTime = Time.time + _fireInterval;
             _currentAmmo--;
+            AmmoChanged?.Invoke(_currentAmmo, _magazineSize);
 
             Ray ray = _camera.ViewportPointToRay(ViewportCenter);
             if (Physics.Raycast(ray, out RaycastHit hit, _range, _hitMask, QueryTriggerInteraction.Ignore))
@@ -135,6 +141,7 @@ namespace ArenaBreak.Player
         {
             _isReloading = false;
             _currentAmmo = _magazineSize;
+            AmmoChanged?.Invoke(_currentAmmo, _magazineSize);
             Debug.Log($"[Weapon] 재장전 완료 — 남은 탄약 {_currentAmmo}/{_magazineSize}");
         }
 

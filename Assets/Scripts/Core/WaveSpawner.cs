@@ -23,8 +23,11 @@ namespace ArenaBreak.Core
         public event Action<int> WaveStarted;
         public event Action<int> WaveCleared;
         public event Action AllWavesCleared;
+        // 누적 처치 수를 넘긴다. 살아 있는 적 수를 세려고 이미 사망을 구독하고 있어 여기서 함께 센다
+        public event Action<int> KillCountChanged;
 
         public int TotalWaves => _waves.Count;
+        public int KillCount { get; private set; }
 
         private void Awake()
         {
@@ -163,6 +166,9 @@ namespace ArenaBreak.Core
         {
             health.Died -= onDied;
             _aliveEnemies.Remove(health);
+
+            KillCount++;
+            KillCountChanged?.Invoke(KillCount);
         }
     }
 }

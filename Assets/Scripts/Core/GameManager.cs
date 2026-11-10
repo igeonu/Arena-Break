@@ -18,6 +18,8 @@ namespace ArenaBreak.Core
     {
         [Header("Flow")]
         [SerializeField, Min(0f)] private float _readyDuration = 2f;
+        // 마지막 적이 쓰러지는 연출을 보고 나서 클리어 화면이 뜨도록 둔 여유 시간
+        [SerializeField, Min(0f)] private float _clearDelay = 3f;
 
         [Header("References")]
         [SerializeField] private Health _playerHealth;
@@ -33,6 +35,8 @@ namespace ArenaBreak.Core
         private InputAction _restartAction;
         private InputAction _quitAction;
         private float _readyEndTime;
+        private bool _isClearPending;
+        private float _clearTime;
 
         public event Action<GameState> StateChanged;
 
@@ -100,6 +104,13 @@ namespace ArenaBreak.Core
                 return;
             }
 
+            // 대기 중 플레이어가 죽으면 GameOver가 먼저 확정되고, EnterEndState가 이 클리어를 무시한다
+            if (_isClearPending && Time.time >= _clearTime)
+            {
+                _isClearPending = false;
+                EnterEndState(GameState.Cleared);
+            }
+
             switch (CurrentState)
             {
                 case GameState.Ready:
@@ -128,9 +139,11 @@ namespace ArenaBreak.Core
             EnterEndState(GameState.GameOver);
         }
 
+        // 바로 멈추지 않고 _clearDelay 동안 게임을 그대로 진행한 뒤 Update에서 Cleared로 넘긴다
         private void HandleAllWavesCleared()
         {
-            EnterEndState(GameState.Cleared);
+            _isClearPending = true;
+            _clearTime = Time.time + _clearDelay;
         }
 
         // 클리어 직후 같은 프레임에 죽는 등 끝 상태가 겹쳐도 먼저 정해진 결과를 유지한다
