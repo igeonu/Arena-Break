@@ -102,7 +102,7 @@ namespace ArenaBreak.Core
 
         private IEnumerator SpawnWave(WaveData wave)
         {
-            if (wave == null || wave.EnemyPrefab == null)
+            if (!HasValidPrefabs(wave))
             {
                 Debug.LogError($"[WaveSpawner] {name}: 비어 있는 WaveData 또는 적 프리팹이 있어 이 웨이브를 건너뛴다");
                 yield break;
@@ -112,7 +112,7 @@ namespace ArenaBreak.Core
 
             for (int i = 0; i < wave.SpawnCount; i++)
             {
-                SpawnEnemy(wave.EnemyPrefab);
+                SpawnEnemy(PickRandomPrefab(wave));
 
                 if (i < wave.SpawnCount - 1)
                 {
@@ -121,10 +121,35 @@ namespace ArenaBreak.Core
             }
         }
 
-        private void SpawnEnemy(EnemyAI prefab)
+        // 웨이브 시작 전에 한 번에 검사해, 스폰 도중 null 프리팹을 만나 수가 어긋나는 일을 막는다
+        private static bool HasValidPrefabs(WaveData wave)
+        {
+            if (wave == null || wave.EnemyPrefabs.Count == 0)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < wave.EnemyPrefabs.Count; i++)
+            {
+                if (wave.EnemyPrefabs[i] == null)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        // 스폰마다 독립적으로 뽑으므로 한 웨이브가 한 종류로만 나올 수도 있다(사용자 결정)
+        private static EnemyBase PickRandomPrefab(WaveData wave)
+        {
+            return wave.EnemyPrefabs[UnityEngine.Random.Range(0, wave.EnemyPrefabs.Count)];
+        }
+
+        private void SpawnEnemy(EnemyBase prefab)
         {
             Transform spawnPoint = _spawnPoints[UnityEngine.Random.Range(0, _spawnPoints.Length)];
-            EnemyAI enemy = _pool.Get(prefab, spawnPoint.position, spawnPoint.rotation);
+            EnemyBase enemy = _pool.Get(prefab, spawnPoint.position, spawnPoint.rotation);
             enemy.SetTarget(_player);
 
             Health health = enemy.GetComponent<Health>();

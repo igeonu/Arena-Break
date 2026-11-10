@@ -10,23 +10,23 @@ namespace ArenaBreak.Core
     public class EnemyPool : IDisposable
     {
         // 웨이브마다 다른 적 프리팹을 쓸 수 있으므로 프리팹별로 따로 보관한다
-        private readonly Dictionary<EnemyAI, Stack<EnemyAI>> _inactiveByPrefab = new Dictionary<EnemyAI, Stack<EnemyAI>>();
-        private readonly Dictionary<EnemyAI, EnemyAI> _prefabByInstance = new Dictionary<EnemyAI, EnemyAI>();
+        private readonly Dictionary<EnemyBase, Stack<EnemyBase>> _inactiveByPrefab = new Dictionary<EnemyBase, Stack<EnemyBase>>();
+        private readonly Dictionary<EnemyBase, EnemyBase> _prefabByInstance = new Dictionary<EnemyBase, EnemyBase>();
 
-        public EnemyAI Get(EnemyAI prefab, Vector3 position, Quaternion rotation)
+        public EnemyBase Get(EnemyBase prefab, Vector3 position, Quaternion rotation)
         {
-            Stack<EnemyAI> inactive = GetInactiveStack(prefab);
+            Stack<EnemyBase> inactive = GetInactiveStack(prefab);
 
             if (inactive.Count > 0)
             {
-                EnemyAI reused = inactive.Pop();
+                EnemyBase reused = inactive.Pop();
                 reused.transform.SetPositionAndRotation(position, rotation);
-                // 활성화 순간 Health와 EnemyAI의 OnEnable이 체력과 상태를 초기화한다
+                // 활성화 순간 Health와 EnemyBase의 OnEnable이 체력과 상태를 초기화한다
                 reused.gameObject.SetActive(true);
                 return reused;
             }
 
-            EnemyAI created = UnityEngine.Object.Instantiate(prefab, position, rotation);
+            EnemyBase created = UnityEngine.Object.Instantiate(prefab, position, rotation);
             // 인스턴스의 수명 동안 한 번만 구독한다. 해제는 Dispose에서 한다
             created.DeathFinished += Release;
             _prefabByInstance.Add(created, prefab);
@@ -35,7 +35,7 @@ namespace ArenaBreak.Core
 
         public void Dispose()
         {
-            foreach (EnemyAI instance in _prefabByInstance.Keys)
+            foreach (EnemyBase instance in _prefabByInstance.Keys)
             {
                 // 씬 종료 중에는 적이 먼저 파괴됐을 수 있다
                 if (instance != null)
@@ -48,17 +48,17 @@ namespace ArenaBreak.Core
             _inactiveByPrefab.Clear();
         }
 
-        private void Release(EnemyAI instance)
+        private void Release(EnemyBase instance)
         {
             instance.gameObject.SetActive(false);
             GetInactiveStack(_prefabByInstance[instance]).Push(instance);
         }
 
-        private Stack<EnemyAI> GetInactiveStack(EnemyAI prefab)
+        private Stack<EnemyBase> GetInactiveStack(EnemyBase prefab)
         {
-            if (!_inactiveByPrefab.TryGetValue(prefab, out Stack<EnemyAI> stack))
+            if (!_inactiveByPrefab.TryGetValue(prefab, out Stack<EnemyBase> stack))
             {
-                stack = new Stack<EnemyAI>();
+                stack = new Stack<EnemyBase>();
                 _inactiveByPrefab.Add(prefab, stack);
             }
 
