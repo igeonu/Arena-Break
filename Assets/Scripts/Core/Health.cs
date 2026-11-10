@@ -17,9 +17,11 @@ namespace ArenaBreak.Core
         public int MaxHealth => _maxHealth;
         public bool IsDead { get; private set; }
 
-        private void Awake()
+        // 풀에서 재사용될 때 죽은 상태로 나오지 않도록 Awake가 아닌 활성화 시점마다 초기화한다
+        private void OnEnable()
         {
             _currentHealth = _maxHealth;
+            IsDead = false;
         }
 
         public void TakeDamage(int amount)

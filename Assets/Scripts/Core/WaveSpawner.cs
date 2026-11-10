@@ -17,6 +17,7 @@ namespace ArenaBreak.Core
         // 적마다 다른 람다로 구독하므로, 해제할 때 같은 델리게이트를 찾으려고 Health별로 보관한다
         private readonly Dictionary<Health, Action> _aliveEnemies = new Dictionary<Health, Action>();
         private WaitForSeconds _waitBetweenWaves;
+        private readonly EnemyPool _pool = new EnemyPool();
 
         // 웨이브 번호는 UI에 바로 쓰도록 1부터 센다
         public event Action<int> WaveStarted;
@@ -54,6 +55,11 @@ namespace ArenaBreak.Core
             }
 
             _aliveEnemies.Clear();
+        }
+
+        private void OnDestroy()
+        {
+            _pool.Dispose();
         }
 
         private void CollectSpawnPoints()
@@ -115,11 +121,10 @@ namespace ArenaBreak.Core
             }
         }
 
-        // TODO(풀링): 웨이브마다 생성/파괴가 반복되므로 풀링 대상
         private void SpawnEnemy(EnemyAI prefab)
         {
             Transform spawnPoint = _spawnPoints[UnityEngine.Random.Range(0, _spawnPoints.Length)];
-            EnemyAI enemy = Instantiate(prefab, spawnPoint.position, spawnPoint.rotation);
+            EnemyAI enemy = _pool.Get(prefab, spawnPoint.position, spawnPoint.rotation);
             enemy.SetTarget(_player);
 
             Health health = enemy.GetComponent<Health>();

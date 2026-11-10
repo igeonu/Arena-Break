@@ -1,3 +1,5 @@
+using System;
+using System.Collections;
 using ArenaBreak.Core;
 using UnityEngine;
 using UnityEngine.AI;
@@ -36,16 +38,25 @@ namespace ArenaBreak.Enemy
 
         private State _state = State.Idle;
         private float _nextAttackTime;
+        private WaitForSeconds _despawnWait;
+
+        // 사망 연출이 끝나 회수해도 되는 시점. 풀이 구독해서 비활성 적을 돌려받는다
+        public event Action<EnemyAI> DeathFinished;
 
         private void Awake()
         {
             _agent = GetComponent<NavMeshAgent>();
             _health = GetComponent<Health>();
+            _despawnWait = new WaitForSeconds(_destroyDelay);
             CachePlayerDamageable();
         }
 
+        // 풀에서 재사용될 때 Dead 상태와 이전 공격 쿨다운이 남지 않게 활성화 시점마다 되돌린다.
+        // 에이전트 재가동(isStopped = false)은 NavMesh 위에서만 호출할 수 있으므로 Update의 EnterChase에 맡긴다
         private void OnEnable()
         {
+            _state = State.Idle;
+            _nextAttackTime = 0f;
             _health.Died += HandleDied;
         }
 
@@ -155,7 +166,20 @@ namespace ArenaBreak.Enemy
                 _agent.ResetPath();
             }
 
-            Destroy(gameObject, _destroyDelay);
+            StartCoroutine(DespawnAfterDelay());
+        }
+
+        private IEnumerator DespawnAfterDelay()
+        {
+            yield return _despawnWait;
+
+            DeathFinished?.Invoke(this);
+
+            // 풀이 회수하면서 이미 껐을 수 있다. 풀 없이 씬에 직접 둔 적도 사라지게 하려고 남아 있으면 끈다
+            if (gameObject.activeSelf)
+            {
+                gameObject.SetActive(false);
+            }
         }
 
         private void CachePlayerDamageable()
