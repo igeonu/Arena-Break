@@ -19,6 +19,7 @@ namespace ArenaBreak.Player
         private void Awake()
         {
             _restLocalPosition = transform.localPosition;
+            RequiredReference.Check(this, _playerHealth, nameof(_playerHealth));
         }
 
         private void OnEnable()

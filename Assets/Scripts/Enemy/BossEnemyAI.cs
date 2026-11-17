@@ -45,6 +45,9 @@ namespace ArenaBreak.Enemy
         [SerializeField] private float _jumpLandingRadius = 6f;
         [SerializeField] private int _jumpDamage = 12;
         [SerializeField] private float _jumpCooldown = 8f;
+        // 커진 몸이 플레이어 바로 위에 내려앉으면 CharacterController를 밀어내므로, 이만큼 앞에서 착지한다.
+        // 보스 반경(0.5 × 스케일 2.5)과 플레이어 반경을 합친 값보다 크게 둘 것
+        [SerializeField] private float _landingStandOff = 2.5f;
         [SerializeField] private float _navSampleRadius = 3f;
 
         [Header("Visual")]
@@ -165,10 +168,14 @@ namespace ArenaBreak.Enemy
             StopMoving();
         }
 
-        // 착지 지점은 도약 순간의 플레이어 위치로 고정한다 — 체공 중에 옆으로 빠지면 피할 수 있게
+        // 착지 지점은 도약 순간의 플레이어 위치 기준으로 고정한다 — 체공 중에 옆으로 빠지면 피할 수 있게
         private bool TryEnterJump()
         {
-            if (!NavMesh.SamplePosition(Player.position, out NavMeshHit navHit, _navSampleRadius, NavMesh.AllAreas))
+            Vector3 toPlayer = Player.position - transform.position;
+            toPlayer.y = 0f;
+            Vector3 landing = Player.position - toPlayer.normalized * _landingStandOff;
+
+            if (!NavMesh.SamplePosition(landing, out NavMeshHit navHit, _navSampleRadius, NavMesh.AllAreas))
             {
                 return false;
             }
@@ -187,7 +194,7 @@ namespace ArenaBreak.Enemy
 
         private void TickJump()
         {
-            float progress = Mathf.Clamp01((Time.time - _jumpStartTime) / _jumpDuration);
+            float progress = GetJumpProgress();
             Vector3 position = Vector3.Lerp(_jumpStart, _jumpTarget, progress);
             position.y += Mathf.Sin(progress * Mathf.PI) * _jumpHeight;
             transform.position = position;
@@ -197,13 +204,37 @@ namespace ArenaBreak.Enemy
                 return;
             }
 
-            // Warp로 에이전트 내부 위치를 착지 지점에 맞춘 뒤에 동기화를 다시 켜야 원래 자리로 순간이동하지 않는다
-            Agent.Warp(_jumpTarget);
-            Agent.updatePosition = true;
+            LandAt(_jumpTarget);
 
             float sqrDistanceToPlayer = (Player.position - transform.position).sqrMagnitude;
             ReleaseShockwave(sqrDistanceToPlayer, _jumpLandingRadius, _jumpDamage);
             EnterRecover();
+        }
+
+        // 체공 중에 죽으면 _isDead 때문에 TickJump가 더 이상 돌지 않아 포물선 위에 멈춘 채 사라진다.
+        // 바로 아래 지면으로 떨어뜨리고, 그 지점이 NavMesh 밖이면 원래 착지 지점으로 내린다
+        protected override void OnDied()
+        {
+            if (_state != State.Jump)
+            {
+                return;
+            }
+
+            Vector3 groundBelow = Vector3.Lerp(_jumpStart, _jumpTarget, GetJumpProgress());
+            bool onNavMesh = NavMesh.SamplePosition(groundBelow, out NavMeshHit navHit, _navSampleRadius, NavMesh.AllAreas);
+            LandAt(onNavMesh ? navHit.position : _jumpTarget);
+        }
+
+        private float GetJumpProgress()
+        {
+            return Mathf.Clamp01((Time.time - _jumpStartTime) / _jumpDuration);
+        }
+
+        // Warp로 에이전트 내부 위치를 착지 지점에 맞춘 뒤에 동기화를 다시 켜야 원래 자리로 순간이동하지 않는다
+        private void LandAt(Vector3 position)
+        {
+            Agent.Warp(position);
+            Agent.updatePosition = true;
         }
 
         // 풀링 대상: 탄막 한 번에 _volleyCount개를 생성·파괴한다. 지금은 RangedEnemyAI와 같이 단순 생성/파괴로 둔다

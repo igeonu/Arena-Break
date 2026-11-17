@@ -55,10 +55,11 @@
 ```
 Assets/
   Scripts/
-    Player/     PlayerController, WeaponSystem
-    Enemy/      EnemyAI, 적 변형
-    Core/       GameManager, Health, IDamageable, WaveSpawner, WaveData
-    UI/         HUDController
+    Player/     PlayerController, WeaponSystem, 플레이어 전용 연출(반동·카메라 흔들림)
+    Enemy/      EnemyBase와 그 변형(Melee/Charger/Ranged/Boss), 적 전용 연출·투사체
+    Core/       GameManager, Health, IDamageable, WaveSpawner, WaveData, KillCounter, EnemyPool,
+                RequiredReference, 플레이어·적이 함께 쓰는 공용 연출(WeaponKick, HitParticles)
+    UI/         HUDController, EnemyHealthBar
   Prefabs/      적, 이펙트, 스폰 포인트
   Scenes/       Arena.unity
   Data/         ScriptableObject 에셋 (웨이브 데이터 등)

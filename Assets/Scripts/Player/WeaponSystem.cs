@@ -57,6 +57,13 @@ namespace ArenaBreak.Player
 
         private void Awake()
         {
+            bool isValid = RequiredReference.Check(this, _inputActions, nameof(_inputActions))
+                & RequiredReference.Check(this, _camera, nameof(_camera));
+            if (!isValid)
+            {
+                return;
+            }
+
             InputActionMap playerMap = _inputActions.FindActionMap("Player", throwIfNotFound: true);
             _attackAction = playerMap.FindAction("Attack", throwIfNotFound: true);
 
@@ -79,12 +86,20 @@ namespace ArenaBreak.Player
             _reloadAction.Disable();
         }
 
+        // Awake에서 검사에 걸려 아무것도 만들지 않았어도 OnDestroy는 불린다
         private void OnDestroy()
         {
-            _reloadAction.Dispose();
+            _reloadAction?.Dispose();
 
-            Destroy(_hitMarkerTemplate);
-            Destroy(_hitMarkerMaterial);
+            if (_hitMarkerTemplate != null)
+            {
+                Destroy(_hitMarkerTemplate);
+            }
+
+            if (_hitMarkerMaterial != null)
+            {
+                Destroy(_hitMarkerMaterial);
+            }
         }
 
         private void Update()
@@ -130,16 +145,12 @@ namespace ArenaBreak.Player
                     damageable.TakeDamage(_damage);
                 }
             }
-
-            // 3장에서 HUD 이벤트로 옮길 임시 출력
-            Debug.Log($"[Weapon] 발사 — 남은 탄약 {_currentAmmo}/{_magazineSize}");
         }
 
         private void StartReload()
         {
             _isReloading = true;
             _reloadEndTime = Time.time + _reloadDuration;
-            Debug.Log($"[Weapon] 재장전 시작 — 남은 탄약 {_currentAmmo}/{_magazineSize}");
             ReloadStarted?.Invoke();
         }
 
@@ -148,7 +159,6 @@ namespace ArenaBreak.Player
             _isReloading = false;
             _currentAmmo = _magazineSize;
             AmmoChanged?.Invoke(_currentAmmo, _magazineSize);
-            Debug.Log($"[Weapon] 재장전 완료 — 남은 탄약 {_currentAmmo}/{_magazineSize}");
         }
 
         // Update 경로에서 GetComponent를 피하려고 세팅이 끝난 마커를 한 번 만들어두고 복제한다

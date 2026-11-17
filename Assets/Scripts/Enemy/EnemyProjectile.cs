@@ -28,6 +28,13 @@ namespace ArenaBreak.Enemy
         // 모든 탄이 공유하는 정적 이벤트로 알린다. 구독한 쪽은 반드시 OnDisable에서 해제해야 한다
         public static event Action<Vector3, Vector3> AnyHit;
 
+        // Enter Play Mode 설정에서 Domain Reload를 끄면 정적 이벤트가 이전 플레이의 구독자를 들고 남으므로 시작할 때 비운다
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetStaticEvents()
+        {
+            AnyHit = null;
+        }
+
         // 발사 순간의 방향(transform.forward)으로만 날아간다. 유도하지 않는다
         public void Launch(int damage)
         {
@@ -109,8 +116,6 @@ namespace ArenaBreak.Enemy
                 damageable.TakeDamage(_damage);
             }
 
-            // 플레이어에게 Health가 붙기 전까지는 이 로그로만 명중 여부를 확인한다
-            Debug.Log($"[EnemyProjectile] 명중 — {hitCollider.name}");
             Destroy(gameObject);
         }
     }

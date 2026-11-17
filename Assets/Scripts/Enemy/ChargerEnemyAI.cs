@@ -183,9 +183,6 @@ namespace ArenaBreak.Enemy
             {
                 _shockwaveVisual.Play(_shockwaveRadius);
             }
-
-            // 플레이어에게 Health가 붙기 전까지는 이 로그로만 충격파 발생을 확인한다
-            Debug.Log($"[ChargerEnemyAI] {name} 충격파 — 명중 {hit}, 데미지 {_shockwaveDamage} (대상 IDamageable: {PlayerDamageable != null})");
         }
 
         private void PerformMelee()
@@ -196,8 +193,6 @@ namespace ArenaBreak.Enemy
             {
                 PlayerDamageable.TakeDamage(_attackDamage);
             }
-
-            Debug.Log($"[ChargerEnemyAI] {name} 근접 공격 — 데미지 {_attackDamage} (대상 IDamageable: {PlayerDamageable != null})");
         }
     }
 }

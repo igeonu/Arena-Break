@@ -16,6 +16,14 @@ namespace ArenaBreak.UI
 
         private void Awake()
         {
+            bool isValid = RequiredReference.Check(this, _health, nameof(_health))
+                & RequiredReference.Check(this, _fill, nameof(_fill))
+                & RequiredReference.Check(this, _canvas, nameof(_canvas));
+            if (!isValid)
+            {
+                return;
+            }
+
             // 프리팹은 씬의 카메라를 직렬화로 참조할 수 없어 생성 시 한 번만 찾아 둔다
             Camera mainCamera = Camera.main;
             if (mainCamera != null)

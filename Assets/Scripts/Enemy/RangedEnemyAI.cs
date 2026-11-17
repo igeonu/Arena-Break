@@ -217,8 +217,6 @@ namespace ArenaBreak.Enemy
             {
                 _weaponKick.Kick();
             }
-
-            Debug.Log($"[RangedEnemyAI] {name} 발사 — 데미지 {_projectileDamage} (대상 IDamageable: {PlayerDamageable != null})");
         }
     }
 }

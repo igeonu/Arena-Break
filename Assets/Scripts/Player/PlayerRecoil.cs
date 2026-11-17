@@ -32,6 +32,8 @@ namespace ArenaBreak.Player
         private void Awake()
         {
             _restRotation = transform.localRotation;
+            // _weaponKick은 없어도 되는 선택 연출이라 검사하지 않는다
+            RequiredReference.Check(this, _weaponSystem, nameof(_weaponSystem));
         }
 
         private void OnEnable()

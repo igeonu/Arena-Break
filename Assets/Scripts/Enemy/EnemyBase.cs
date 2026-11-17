@@ -23,6 +23,9 @@ namespace ArenaBreak.Enemy
         // 사망 연출이 끝나 회수해도 되는 시점. 풀이 구독해서 비활성 적을 돌려받는다
         public event Action<EnemyBase> DeathFinished;
 
+        // 스포너가 스폰할 때마다 GetComponent를 다시 부르지 않도록 Awake에서 캐싱한 것을 연다
+        public Health Health => _health;
+
         protected NavMeshAgent Agent { get; private set; }
         protected Transform Player => _player;
         // 플레이어에게 Health가 아직 없을 수 있으므로 null을 허용한다

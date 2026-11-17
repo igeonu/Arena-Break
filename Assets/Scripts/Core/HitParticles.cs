@@ -15,6 +15,12 @@ namespace ArenaBreak.Core
         [SerializeField] private Color _playerHitColor = new Color(1f, 0.85f, 0.3f, 1f);
         [SerializeField] private Color _enemyHitColor = new Color(1f, 0.25f, 0.2f, 1f);
 
+        private void Awake()
+        {
+            RequiredReference.Check(this, _weaponSystem, nameof(_weaponSystem));
+            RequiredReference.Check(this, _particles, nameof(_particles));
+        }
+
         private void OnEnable()
         {
             _weaponSystem.HitSurface += HandlePlayerHit;

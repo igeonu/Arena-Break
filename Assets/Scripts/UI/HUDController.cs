@@ -26,6 +26,12 @@ namespace ArenaBreak.UI
         [SerializeField] private Text _ammoText;
         [SerializeField] private Text _waveText;
         [SerializeField] private Text _killText;
+        // string.Format 형식. {0}·{1}의 의미는 각 필드 이름 뒤 괄호대로다
+        [SerializeField] private string _ammoFormat = "{0} / {1}";          // (현재 탄약, 탄창 크기)
+        [SerializeField] private string _waveFormat = "WAVE {0} / {1}";     // (웨이브 번호, 일반 웨이브 수)
+        [SerializeField] private string _killFormat = "KILLS {0}";          // (누적 처치 수)
+        // 첫 WaveStarted 전(Ready 동안)에 보이는 문구
+        [SerializeField] private string _waveIdleText = "WAVE -";
         [SerializeField] private string _bossWaveTitle = "BOSS WAVE";
 
         [Header("End Panel")]
@@ -112,7 +118,7 @@ namespace ArenaBreak.UI
             // 첫 WaveStarted 전까지 비어 보이지 않게 둔다
             if (_waveText != null)
             {
-                _waveText.text = "WAVE -";
+                _waveText.text = _waveIdleText;
             }
 
             if (_endPanel != null)
@@ -191,7 +197,7 @@ namespace ArenaBreak.UI
         {
             if (_ammoText != null)
             {
-                _ammoText.text = $"{current} / {max}";
+                _ammoText.text = string.Format(_ammoFormat, current, max);
             }
         }
 
@@ -204,14 +210,14 @@ namespace ArenaBreak.UI
 
             _waveText.text = _waveSpawner.IsBossWave(waveNumber)
                 ? _bossWaveTitle
-                : $"WAVE {waveNumber} / {_waveSpawner.NormalWaveCount}";
+                : string.Format(_waveFormat, waveNumber, _waveSpawner.NormalWaveCount);
         }
 
         private void HandleKillCountChanged(int killCount)
         {
             if (_killText != null)
             {
-                _killText.text = $"KILLS {killCount}";
+                _killText.text = string.Format(_killFormat, killCount);
             }
         }
 

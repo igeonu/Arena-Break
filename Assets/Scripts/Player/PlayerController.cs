@@ -1,3 +1,4 @@
+using ArenaBreak.Core;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -43,6 +44,13 @@ namespace ArenaBreak.Player
         private void Awake()
         {
             _characterController = GetComponent<CharacterController>();
+
+            bool isValid = RequiredReference.Check(this, _inputActions, nameof(_inputActions))
+                & RequiredReference.Check(this, _cameraPivot, nameof(_cameraPivot));
+            if (!isValid)
+            {
+                return;
+            }
 
             InputActionMap playerMap = _inputActions.FindActionMap("Player", throwIfNotFound: true);
             _moveAction = playerMap.FindAction("Move", throwIfNotFound: true);

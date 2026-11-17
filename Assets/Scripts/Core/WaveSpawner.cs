@@ -18,20 +18,26 @@ namespace ArenaBreak.Core
         private readonly Dictionary<Health, Action> _aliveEnemies = new Dictionary<Health, Action>();
         private WaitForSeconds _waitBetweenWaves;
         private readonly EnemyPool _pool = new EnemyPool();
+        private readonly KillCounter _killCounter = new KillCounter();
+        private bool _isRunning;
 
         // 웨이브 번호는 UI에 바로 쓰도록 1부터 센다
         public event Action<int> WaveStarted;
         public event Action<int> WaveCleared;
         public event Action AllWavesCleared;
-        // 누적 처치 수를 넘긴다. 살아 있는 적 수를 세려고 이미 사망을 구독하고 있어 여기서 함께 센다
-        public event Action<int> KillCountChanged;
+        // 집계는 KillCounter가 맡는다. HUD가 구독하던 이벤트를 그대로 쓰도록 이름과 시그니처를 유지해 넘겨준다
+        public event Action<int> KillCountChanged
+        {
+            add => _killCounter.Changed += value;
+            remove => _killCounter.Changed -= value;
+        }
         // 보스는 스폰될 때마다 다른 풀 인스턴스일 수 있어 HUD가 미리 참조할 수 없으므로, 스폰 시점에 Health를 넘긴다
         public event Action<Health> BossSpawned;
 
         public int TotalWaves => _waves.Count;
         // HUD가 "WAVE 1 / 3"처럼 보스 웨이브를 빼고 세도록 따로 둔다
         public int NormalWaveCount { get; private set; }
-        public int KillCount { get; private set; }
+        public int KillCount => _killCounter.Count;
 
         private void Awake()
         {
@@ -61,19 +67,30 @@ namespace ArenaBreak.Core
             return count;
         }
 
-        private void Start()
+        // Ready 동안 적이 나오지 않도록 스스로 시작하지 않는다. 게임 흐름을 아는 GameManager가 Playing 진입 시 호출한다
+        public void StartWaves()
         {
+            if (_isRunning)
+            {
+                return;
+            }
+
             if (_spawnPoints.Length == 0)
             {
                 Debug.LogError($"[WaveSpawner] {name}: 스폰 포인트가 없어 웨이브를 시작하지 않는다");
                 return;
             }
 
+            _isRunning = true;
             StartCoroutine(RunWaves());
         }
 
         private void OnDisable()
         {
+            // 컴포넌트만 꺼지면 코루틴은 계속 돈다. 아래에서 _aliveEnemies를 비우면 WaitUntil이 바로 통과해
+            // 웨이브가 저절로 클리어되므로 진행도 함께 멈춘다
+            StopAllCoroutines();
+
             foreach (KeyValuePair<Health, Action> pair in _aliveEnemies)
             {
                 // 적이 이미 파괴됐을 수 있다
@@ -181,7 +198,7 @@ namespace ArenaBreak.Core
             EnemyBase enemy = _pool.Get(prefab, spawnPoint.position, spawnPoint.rotation);
             enemy.SetTarget(_player);
 
-            Health health = enemy.GetComponent<Health>();
+            Health health = enemy.Health;
             Action onDied = null;
             onDied = () => HandleEnemyDied(health, onDied);
             health.Died += onDied;
@@ -197,9 +214,7 @@ namespace ArenaBreak.Core
         {
             health.Died -= onDied;
             _aliveEnemies.Remove(health);
-
-            KillCount++;
-            KillCountChanged?.Invoke(KillCount);
+            _killCounter.Add();
         }
     }
 }

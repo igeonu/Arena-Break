@@ -1,3 +1,4 @@
+using ArenaBreak.Core;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -33,6 +34,15 @@ namespace ArenaBreak.Player
 
         private void Awake()
         {
+            bool isValid = RequiredReference.Check(this, _camera, nameof(_camera))
+                & RequiredReference.Check(this, _weapon, nameof(_weapon))
+                & RequiredReference.Check(this, _playerController, nameof(_playerController))
+                & RequiredReference.Check(this, _weaponSystem, nameof(_weaponSystem));
+            if (!isValid)
+            {
+                return;
+            }
+
             // 공유 에셋(InputSystem_Actions)을 수정하지 않기 위해 조준 액션은 이 컴포넌트가 소유한다
             _aimAction = new InputAction("Aim", InputActionType.Button, _aimBinding);
 
@@ -55,9 +65,10 @@ namespace ArenaBreak.Player
             ApplyBlend(0f);
         }
 
+        // Awake에서 검사에 걸려 액션을 만들지 않았어도 OnDestroy는 불린다
         private void OnDestroy()
         {
-            _aimAction.Dispose();
+            _aimAction?.Dispose();
         }
 
         private void Update()

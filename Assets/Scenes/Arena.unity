@@ -1098,6 +1098,10 @@ MonoBehaviour:
   _ammoText: {fileID: 737273129}
   _waveText: {fileID: 566169295}
   _killText: {fileID: 354348990}
+  _ammoFormat: '{0} / {1}'
+  _waveFormat: WAVE {0} / {1}
+  _killFormat: KILLS {0}
+  _waveIdleText: WAVE -
   _bossWaveTitle: BOSS WAVE
   _endPanel: {fileID: 1098257812}
   _endTitleText: {fileID: 304399911}

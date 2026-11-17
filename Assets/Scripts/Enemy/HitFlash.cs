@@ -26,6 +26,11 @@ namespace ArenaBreak.Enemy
 
         private void Awake()
         {
+            if (!RequiredReference.Check(this, _bodyRenderer, nameof(_bodyRenderer)))
+            {
+                return;
+            }
+
             _health = GetComponent<Health>();
             _flashBlock = new MaterialPropertyBlock();
             _flashBlock.SetColor(BaseColorId, _flashColor);

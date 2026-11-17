@@ -117,6 +117,12 @@ namespace ArenaBreak.Core
                     if (Time.time >= _readyEndTime)
                     {
                         ChangeState(GameState.Playing);
+
+                        // WaveSpawner는 스스로 시작하지 않는다. Ready 동안 적이 나오지 않게 여기서 시작시킨다
+                        if (_waveSpawner != null)
+                        {
+                            _waveSpawner.StartWaves();
+                        }
                     }
                     break;
 
