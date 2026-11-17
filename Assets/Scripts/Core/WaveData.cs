@@ -12,9 +12,12 @@ namespace ArenaBreak.Core
         [SerializeField] private List<EnemyBase> _enemyPrefabs = new List<EnemyBase>();
         [SerializeField, Min(1)] private int _spawnCount = 5;
         [SerializeField, Min(0f)] private float _spawnInterval = 1f;
+        // 켜면 이 웨이브에서 나온 적은 보스로 취급되어 HUD에 보스 체력바가 뜨고, 웨이브 번호 대신 BOSS WAVE로 표시된다
+        [SerializeField] private bool _isBossWave;
 
         public IReadOnlyList<EnemyBase> EnemyPrefabs => _enemyPrefabs;
         public int SpawnCount => _spawnCount;
         public float SpawnInterval => _spawnInterval;
+        public bool IsBossWave => _isBossWave;
     }
 }

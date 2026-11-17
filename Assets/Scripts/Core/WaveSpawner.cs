@@ -25,14 +25,40 @@ namespace ArenaBreak.Core
         public event Action AllWavesCleared;
         // 누적 처치 수를 넘긴다. 살아 있는 적 수를 세려고 이미 사망을 구독하고 있어 여기서 함께 센다
         public event Action<int> KillCountChanged;
+        // 보스는 스폰될 때마다 다른 풀 인스턴스일 수 있어 HUD가 미리 참조할 수 없으므로, 스폰 시점에 Health를 넘긴다
+        public event Action<Health> BossSpawned;
 
         public int TotalWaves => _waves.Count;
+        // HUD가 "WAVE 1 / 3"처럼 보스 웨이브를 빼고 세도록 따로 둔다
+        public int NormalWaveCount { get; private set; }
         public int KillCount { get; private set; }
 
         private void Awake()
         {
             CollectSpawnPoints();
             _waitBetweenWaves = new WaitForSeconds(_timeBetweenWaves);
+            NormalWaveCount = CountNormalWaves();
+        }
+
+        // 웨이브 번호는 WaveStarted와 같이 1부터 센다
+        public bool IsBossWave(int waveNumber)
+        {
+            int index = waveNumber - 1;
+            return index >= 0 && index < _waves.Count && _waves[index] != null && _waves[index].IsBossWave;
+        }
+
+        private int CountNormalWaves()
+        {
+            int count = 0;
+            for (int i = 0; i < _waves.Count; i++)
+            {
+                if (_waves[i] != null && !_waves[i].IsBossWave)
+                {
+                    count++;
+                }
+            }
+
+            return count;
         }
 
         private void Start()
@@ -115,7 +141,7 @@ namespace ArenaBreak.Core
 
             for (int i = 0; i < wave.SpawnCount; i++)
             {
-                SpawnEnemy(PickRandomPrefab(wave));
+                SpawnEnemy(PickRandomPrefab(wave), wave.IsBossWave);
 
                 if (i < wave.SpawnCount - 1)
                 {
@@ -149,7 +175,7 @@ namespace ArenaBreak.Core
             return wave.EnemyPrefabs[UnityEngine.Random.Range(0, wave.EnemyPrefabs.Count)];
         }
 
-        private void SpawnEnemy(EnemyBase prefab)
+        private void SpawnEnemy(EnemyBase prefab, bool isBoss)
         {
             Transform spawnPoint = _spawnPoints[UnityEngine.Random.Range(0, _spawnPoints.Length)];
             EnemyBase enemy = _pool.Get(prefab, spawnPoint.position, spawnPoint.rotation);
@@ -160,6 +186,11 @@ namespace ArenaBreak.Core
             onDied = () => HandleEnemyDied(health, onDied);
             health.Died += onDied;
             _aliveEnemies.Add(health, onDied);
+
+            if (isBoss)
+            {
+                BossSpawned?.Invoke(health);
+            }
         }
 
         private void HandleEnemyDied(Health health, Action onDied)
