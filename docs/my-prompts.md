@@ -291,9 +291,7 @@ ScriptableObject 기반 웨이브 시스템을 만들어줘.
 **선택**: 원거리(Ranged) + 돌진(Charger) 둘 다 · **커밋**: `4aa8e63 feat: NavMesh 기반 적 AI 종류 추가`
 
 #### 시도 1
-```
 
-```
 **결과**: `EnemyBase.cs`, `RangedEnemyAI.cs`, `ChargerEnemyAI.cs`, `EnemyProjectile.cs`, `ShockwaveVisual.cs` 신규 생성(스크립트 5개). 프리팹 3개 생성. `EnemyPool`, `WaveSpawner`, `WaveData`, `Wave_1~3` 수정.
 **문제점**: CLAUDE.md의 "한 번에 파일 1~2개 / 5개 이상 생성 금지"를 어겼다. `EnemyBase`를 도입하면서 결국 기존 `EnemyAI` 구조까지 바뀌었다(3-4에서 `EnemyAI.cs` 삭제 → `MeleeEnemyAI.cs`). 과제 조건 "기존 EnemyAI를 수정하지 않는다"와 충돌한다.
 **원인 분석**: 생성할 파일 수와 범위를 프롬프트에서 제한하지 않음
